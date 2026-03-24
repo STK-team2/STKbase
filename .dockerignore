@@ -1,0 +1,56 @@
+# Git
+.git/
+.gitignore
+README.md
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle.properties.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Backup
+*.bak
+*.backup
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Node (if using frontend)
+node_modules/
+npm-debug.log*
+
+# Maven (if switching from Gradle)
+target/
+
+# Application specific
+uploads/
+downloads/
+temp/
