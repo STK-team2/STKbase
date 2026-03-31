@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team2.stk.infrastructure.excel.ExcelExporter;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -21,7 +20,7 @@ public class DownloadCurrentStockExcelUseCase {
     private final ExcelExporter excelExporter;
 
     @Transactional(readOnly = true)
-    public DownloadMovementExcelUseCase.ExcelDownloadResult execute() throws IOException {
+    public DownloadMovementExcelUseCase.ExcelDownloadResult execute() {
         List<GetCurrentStockUseCase.CurrentStockResult> results = getCurrentStockUseCase.execute();
 
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));

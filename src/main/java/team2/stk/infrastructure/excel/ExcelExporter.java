@@ -6,7 +6,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
@@ -21,7 +20,7 @@ public class ExcelExporter {
             List<String> headers,
             List<T> rows,
             List<Function<T, Object>> columns
-    ) throws IOException {
+    ) {
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet();
 
@@ -60,7 +59,11 @@ public class ExcelExporter {
             }
         }
 
-        return excelService.toResource(wb);
+        try {
+            return excelService.toResource(wb);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("엑셀 파일 생성에 실패했습니다.", e);
+        }
     }
 
     private void createCell(Row row, int idx, Object value, CellStyle style) {
