@@ -18,9 +18,8 @@ import team2.stk.application.stock.DownloadMovementExcelUseCase;
 import team2.stk.presentation.stock.dto.CurrentStockResponse;
 import team2.stk.presentation.stock.dto.LedgerResponse;
 import team2.stk.shared.response.ApiResponse;
+import team2.stk.shared.util.ExcelResponseHelper;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -65,20 +64,10 @@ public class StockController {
     @Operation(summary = "현재 재고 엑셀 다운로드", description = "현재 재고 현황을 엑셀 파일로 다운로드합니다.")
     @GetMapping("/current/download")
     public ResponseEntity<ByteArrayResource> downloadCurrentStock() {
-        try {
-            DownloadMovementExcelUseCase.ExcelDownloadResult result =
-                    downloadCurrentStockExcelUseCase.execute();
+        DownloadMovementExcelUseCase.ExcelDownloadResult result =
+                downloadCurrentStockExcelUseCase.execute();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", result.fileName());
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(result.resource());
-        } catch (Exception e) {
-            throw new RuntimeException("엑셀 파일 생성에 실패했습니다.", e);
-        }
+        return ExcelResponseHelper.buildResponse(result.fileName(), result.resource());
     }
 
     @Operation(summary = "수불 엑셀 다운로드", description = "수불 현황을 엑셀 파일로 다운로드합니다.")
@@ -87,19 +76,9 @@ public class StockController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
-        try {
-            DownloadMovementExcelUseCase.ExcelDownloadResult result =
-                    downloadLedgerExcelUseCase.execute(from, to);
+        DownloadMovementExcelUseCase.ExcelDownloadResult result =
+                downloadLedgerExcelUseCase.execute(from, to);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", result.fileName());
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(result.resource());
-        } catch (Exception e) {
-            throw new RuntimeException("엑셀 파일 생성에 실패했습니다.", e);
-        }
+        return ExcelResponseHelper.buildResponse(result.fileName(), result.resource());
     }
 }

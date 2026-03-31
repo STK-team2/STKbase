@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import team2.stk.application.history.DownloadChangeHistoryExcelUseCase;
 import team2.stk.application.history.GetChangeHistoryUseCase;
 import team2.stk.shared.response.ApiResponse;
+import team2.stk.shared.util.ExcelResponseHelper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -85,20 +84,11 @@ public class HistoryController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String query
     ) {
-        try {
-            DownloadChangeHistoryExcelUseCase.SearchCriteria criteria =
-                    new DownloadChangeHistoryExcelUseCase.SearchCriteria(tableName, startDate, endDate, query);
+        DownloadChangeHistoryExcelUseCase.SearchCriteria criteria =
+                new DownloadChangeHistoryExcelUseCase.SearchCriteria(tableName, startDate, endDate, query);
 
-            DownloadChangeHistoryExcelUseCase.ExcelResult result = downloadChangeHistoryExcelUseCase.execute(criteria);
+        DownloadChangeHistoryExcelUseCase.ExcelResult result = downloadChangeHistoryExcelUseCase.execute(criteria);
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + result.filename() + "\"")
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                    .body(result.resource());
-
-        } catch (Exception e) {
-            log.error("변경 이력 엑셀 다운로드 중 오류 발생", e);
-            return ResponseEntity.internalServerError().build();
-        }
+        return ExcelResponseHelper.buildResponse(result.filename(), result.resource());
     }
 }
