@@ -1,5 +1,4 @@
 
-# 개발환경용 Docker Compose
 version: '3.8'
 
 services:
@@ -12,7 +11,6 @@ services:
       - stk-network
     restart: unless-stopped
 
-  # PostgreSQL 데이터베이스
   postgres:
     image: postgres:16
     container_name: stk-postgres
