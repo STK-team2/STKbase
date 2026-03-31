@@ -17,15 +17,23 @@ import team2.stk.shared.response.ApiResponse;
 public class AuthController {
 
     private final SignUpUseCase signUpUseCase;
+    private final SendVerificationCodeUseCase sendVerificationCodeUseCase;
     private final VerifyEmailUseCase verifyEmailUseCase;
     private final SignInUseCase signInUseCase;
     private final RefreshTokenUseCase refreshTokenUseCase;
     private final SignOutUseCase signOutUseCase;
 
-    @Operation(summary = "회원가입", description = "사용자 회원가입 후 이메일 인증 코드를 발송합니다.")
+    @Operation(summary = "회원가입", description = "이메일 인증 완료 상태에서 사용자 회원가입을 진행합니다.")
     @PostMapping("/sign-up")
     public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpRequest request) {
         signUpUseCase.execute(request.getEmail(), request.getName(), request.getPassword());
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "인증코드 발송", description = "입력한 이메일로 인증 코드를 발송합니다.")
+    @PostMapping("/send-verification-code")
+    public ResponseEntity<ApiResponse<Void>> sendVerificationCode(@Valid @RequestBody SendVerificationCodeRequest request) {
+        sendVerificationCodeUseCase.execute(request.getEmail());
         return ResponseEntity.ok(ApiResponse.success());
     }
 

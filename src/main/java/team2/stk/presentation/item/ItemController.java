@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team2.stk.application.item.DeleteItemUseCase;
+import team2.stk.application.item.GetItemsUseCase;
 import team2.stk.application.item.RegisterItemUseCase;
 import team2.stk.domain.item.Item;
-import team2.stk.infrastructure.persistence.item.ItemRepository;
 import team2.stk.presentation.item.dto.ItemResponse;
 import team2.stk.presentation.item.dto.RegisterItemRequest;
 import team2.stk.shared.response.ApiResponse;
@@ -27,7 +27,7 @@ public class ItemController {
 
     private final RegisterItemUseCase registerItemUseCase;
     private final DeleteItemUseCase deleteItemUseCase;
-    private final ItemRepository itemRepository;
+    private final GetItemsUseCase getItemsUseCase;
 
     @Operation(summary = "자재 등록", description = "새로운 자재를 등록합니다.")
     @PostMapping
@@ -45,14 +45,7 @@ public class ItemController {
     @Operation(summary = "자재 검색", description = "자재코드 또는 자재명으로 자재를 검색합니다.")
     @GetMapping
     public ResponseEntity<ApiResponse<List<ItemResponse>>> searchItems(@RequestParam(required = false, defaultValue = "") String query) {
-        List<Item> items;
-        if (query.trim().isEmpty()) {
-            items = itemRepository.findAllActive();
-        } else {
-            items = itemRepository.searchActive(query.trim());
-        }
-
-        List<ItemResponse> responses = items.stream()
+        List<ItemResponse> responses = getItemsUseCase.execute(query).stream()
                 .map(ItemResponse::from)
                 .toList();
 

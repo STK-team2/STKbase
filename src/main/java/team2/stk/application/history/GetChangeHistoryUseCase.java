@@ -1,5 +1,7 @@
 package team2.stk.application.history;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import team2.stk.infrastructure.persistence.user.ChangeHistoryRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -41,6 +44,8 @@ public class GetChangeHistoryUseCase {
             String query
     ) {}
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public record ChangeHistoryDto(
             String id,
             String userName,
@@ -58,10 +63,21 @@ public class GetChangeHistoryUseCase {
                     history.getTableName(),
                     history.getRecordId().toString(),
                     history.getAction(),
-                    history.getBeforeValue(),
-                    history.getAfterValue(),
+                    toJsonString(history.getBeforeValue()),
+                    toJsonString(history.getAfterValue()),
                     history.getChangedAt()
             );
+        }
+
+        private static String toJsonString(Map<String, Object> value) {
+            if (value == null) {
+                return null;
+            }
+            try {
+                return objectMapper.writeValueAsString(value);
+            } catch (JsonProcessingException e) {
+                return value.toString();
+            }
         }
     }
 }

@@ -1,26 +1,24 @@
 package team2.stk.application.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team2.stk.domain.user.EmailVerification;
 import team2.stk.domain.user.User;
 import team2.stk.domain.user.exception.EmailAlreadyExistsException;
-import team2.stk.infrastructure.mail.EmailService;
-import team2.stk.infrastructure.persistence.user.EmailVerificationRepository;
+import team2.stk.domain.user.exception.EmailNotVerifiedException;
 import team2.stk.infrastructure.persistence.user.UserRepository;
-
-import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
 public class SignUpUseCase {
 
+    private static final String VERIFIED_KEY_PREFIX = "auth:email:verified:";
+
     private final UserRepository userRepository;
-    private final EmailVerificationRepository emailVerificationRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Transactional
     public void execute(String email, String name, String password) {
@@ -28,19 +26,16 @@ public class SignUpUseCase {
             throw new EmailAlreadyExistsException(email);
         }
 
+        String verifiedKey = VERIFIED_KEY_PREFIX + email;
+        String verifiedValue = stringRedisTemplate.opsForValue().get(verifiedKey);
+        if (!"true".equals(verifiedValue)) {
+            throw new EmailNotVerifiedException();
+        }
+
         String passwordHash = passwordEncoder.encode(password);
         User user = new User(email, name, passwordHash);
+        user.verify();
         userRepository.save(user);
-
-        String verificationCode = generateVerificationCode();
-        EmailVerification emailVerification = new EmailVerification(email, verificationCode);
-        emailVerificationRepository.save(emailVerification);
-
-        emailService.sendVerificationEmail(email, verificationCode);
-    }
-
-    private String generateVerificationCode() {
-        SecureRandom random = new SecureRandom();
-        return String.format("%06d", random.nextInt(1000000));
+        stringRedisTemplate.delete(verifiedKey);
     }
 }
