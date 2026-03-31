@@ -11,7 +11,7 @@ import team2.stk.infrastructure.mail.EmailService;
 import team2.stk.infrastructure.persistence.user.EmailVerificationRepository;
 import team2.stk.infrastructure.persistence.user.UserRepository;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class SignUpUseCase {
     }
 
     private String generateVerificationCode() {
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         return String.format("%06d", random.nextInt(1000000));
     }
 }
