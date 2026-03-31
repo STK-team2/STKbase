@@ -2,6 +2,7 @@ package team2.stk.presentation.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import team2.stk.application.item.GetItemsUseCase;
 import team2.stk.domain.item.Item;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,17 @@ public class ItemResponse {
                 item.getBoxNumber(),
                 item.getLocation(),
                 item.getCreatedAt()
+        );
+    }
+
+    public static ItemResponse from(GetItemsUseCase.ItemResult result) {
+        return new ItemResponse(
+                result.itemId(),
+                result.itemCode(),
+                result.itemName(),
+                result.boxNumber(),
+                result.location(),
+                result.createdAt()
         );
     }
 }
