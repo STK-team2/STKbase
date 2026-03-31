@@ -18,7 +18,7 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
             message.setSubject("재고관리 시스템 이메일 인증");
-            message.setText("인증 코드: " + code + "\n\n이 코드는 10분 후에 만료됩니다.");
+            message.setText("인증 코드: " + code + "\n\n이 코드는 3분 후에 만료됩니다.");
 
             javaMailSender.send(message);
             log.info("이메일 발송 완료: {}", to);
