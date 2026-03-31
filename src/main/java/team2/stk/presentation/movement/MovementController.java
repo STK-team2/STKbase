@@ -12,12 +12,10 @@ import team2.stk.application.movement.*;
 import team2.stk.application.stock.DownloadMovementExcelUseCase;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
-import team2.stk.infrastructure.persistence.movement.StockMovementRepository;
 import team2.stk.presentation.movement.dto.*;
 import team2.stk.shared.response.ApiResponse;
+import team2.stk.shared.util.ExcelResponseHelper;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,7 +33,7 @@ public class MovementController {
     private final RegisterOutboundUseCase registerOutboundUseCase;
     private final UpdateMovementUseCase updateMovementUseCase;
     private final DeleteMovementUseCase deleteMovementUseCase;
-    private final StockMovementRepository stockMovementRepository;
+    private final GetMovementsUseCase getMovementsUseCase;
     private final DownloadMovementExcelUseCase downloadMovementExcelUseCase;
 
     @Operation(summary = "입고 등록", description = "기존 자재에 대한 입고를 등록합니다.")
@@ -125,8 +123,7 @@ public class MovementController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false, defaultValue = "") String query) {
 
-        List<StockMovement> movements = stockMovementRepository.searchMovements(type, from, to, query.trim());
-        List<MovementResponse> responses = movements.stream()
+        List<MovementResponse> responses = getMovementsUseCase.execute(type, from, to, query.trim()).stream()
                 .map(MovementResponse::from)
                 .toList();
 
@@ -141,20 +138,10 @@ public class MovementController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false, defaultValue = "") String query) {
 
-        try {
-            DownloadMovementExcelUseCase.ExcelDownloadResult result =
-                    downloadMovementExcelUseCase.execute(type, from, to, query.trim());
+        DownloadMovementExcelUseCase.ExcelDownloadResult result =
+                downloadMovementExcelUseCase.execute(type, from, to, query.trim());
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", result.fileName());
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(result.resource());
-        } catch (Exception e) {
-            throw new RuntimeException("엑셀 파일 생성에 실패했습니다.", e);
-        }
+        return ExcelResponseHelper.buildResponse(result.fileName(), result.resource());
     }
 
     public record NewItemInboundResponse(UUID itemId, String itemCode, String itemName, MovementResponse movement) {}

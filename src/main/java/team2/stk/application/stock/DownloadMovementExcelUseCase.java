@@ -9,7 +9,6 @@ import team2.stk.domain.movement.StockMovement;
 import team2.stk.infrastructure.excel.ExcelExporter;
 import team2.stk.infrastructure.persistence.movement.StockMovementRepository;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -24,7 +23,7 @@ public class DownloadMovementExcelUseCase {
     private final ExcelExporter excelExporter;
 
     @Transactional(readOnly = true)
-    public ExcelDownloadResult execute(MovementType type, LocalDate startDate, LocalDate endDate, String query) throws IOException {
+    public ExcelDownloadResult execute(MovementType type, LocalDate startDate, LocalDate endDate, String query) {
         List<StockMovement> movements = stockMovementRepository.searchMovements(type, startDate, endDate, query);
 
         String typeKorean = getTypeKorean(type);

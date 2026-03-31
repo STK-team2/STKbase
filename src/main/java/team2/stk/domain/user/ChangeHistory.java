@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team2.stk.shared.config.JsonbConverter;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -35,16 +37,18 @@ public class ChangeHistory {
     private String action;
 
     @Column(name = "before_value", columnDefinition = "jsonb")
-    private String beforeValue;
+    @Convert(converter = JsonbConverter.class)
+    private Map<String, Object> beforeValue;
 
     @Column(name = "after_value", columnDefinition = "jsonb")
-    private String afterValue;
+    @Convert(converter = JsonbConverter.class)
+    private Map<String, Object> afterValue;
 
     @Column(name = "changed_at", nullable = false)
     private LocalDateTime changedAt;
 
     public ChangeHistory(User user, String tableName, String screenName, UUID recordId, String action,
-                        String beforeValue, String afterValue) {
+                        Map<String, Object> beforeValue, Map<String, Object> afterValue) {
         this.user = user;
         this.tableName = tableName;
         this.screenName = screenName;

@@ -1,34 +1,33 @@
 package team2.stk.application.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team2.stk.domain.user.EmailVerification;
-import team2.stk.domain.user.User;
 import team2.stk.domain.user.exception.InvalidVerificationCodeException;
-import team2.stk.infrastructure.persistence.user.EmailVerificationRepository;
-import team2.stk.infrastructure.persistence.user.UserRepository;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
 public class VerifyEmailUseCase {
 
-    private final EmailVerificationRepository emailVerificationRepository;
-    private final UserRepository userRepository;
+    private static final String CODE_KEY_PREFIX = "auth:email:code:";
+    private static final String VERIFIED_KEY_PREFIX = "auth:email:verified:";
+    private static final Duration VERIFIED_TTL = Duration.ofMinutes(30);
+
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Transactional
     public void execute(String email, String code) {
-        EmailVerification emailVerification = emailVerificationRepository.findLatestByEmail(email)
-                .orElseThrow(InvalidVerificationCodeException::new);
-
-        if (!emailVerification.isValid(code)) {
+        String codeKey = CODE_KEY_PREFIX + email;
+        String savedCode = stringRedisTemplate.opsForValue().get(codeKey);
+        if (savedCode == null || !savedCode.equals(code)) {
             throw new InvalidVerificationCodeException();
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(InvalidVerificationCodeException::new);
-
-        user.verify();
-        userRepository.save(user);
+        String verifiedKey = VERIFIED_KEY_PREFIX + email;
+        stringRedisTemplate.opsForValue().set(verifiedKey, "true", VERIFIED_TTL);
+        stringRedisTemplate.delete(codeKey);
     }
 }

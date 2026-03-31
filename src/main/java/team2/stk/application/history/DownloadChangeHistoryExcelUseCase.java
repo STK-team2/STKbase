@@ -1,5 +1,7 @@
 package team2.stk.application.history;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -8,10 +10,10 @@ import team2.stk.domain.user.ChangeHistory;
 import team2.stk.infrastructure.excel.ExcelExporter;
 import team2.stk.infrastructure.persistence.user.ChangeHistoryRepository;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Slf4j
@@ -26,7 +28,7 @@ public class DownloadChangeHistoryExcelUseCase {
             "변경일시", "사용자", "테이블명", "레코드ID", "액션", "변경 전", "변경 후"
     );
 
-    public ExcelResult execute(SearchCriteria criteria) throws IOException {
+    public ExcelResult execute(SearchCriteria criteria) {
         log.info("변경 이력 엑셀 다운로드 시작 - 테이블명: {}, 기간: {} ~ {}, 검색어: {}",
                 criteria.tableName(), criteria.startDate(), criteria.endDate(), criteria.query());
 
@@ -56,10 +58,15 @@ public class DownloadChangeHistoryExcelUseCase {
         return new ExcelResult(resource, filename);
     }
 
-    private String formatJsonValue(String jsonValue) {
-        if (jsonValue == null) return "";
-        // JSONB 값을 읽기 쉽게 포맷팅 (간단히 줄바꿈 추가)
-        return jsonValue.replace(",", ",\n").replace("{", "{\n").replace("}", "\n}");
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private String formatJsonValue(Map<String, Object> value) {
+        if (value == null) return "";
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            return value.toString();
+        }
     }
 
     private String generateFilename(SearchCriteria criteria) {

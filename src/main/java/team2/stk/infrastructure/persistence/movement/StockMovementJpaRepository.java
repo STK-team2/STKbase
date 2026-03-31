@@ -76,6 +76,20 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovement,
             @Param("endDate") LocalDate endDate
     );
 
+    // 모든 활성 아이템의 현재 재고를 한 번에 계산 (N+1 방지)
+    @Query("SELECT sm.item.id as itemId, " +
+           "COALESCE(SUM(CASE WHEN sm.type IN ('INBOUND', 'RETURN_OUTBOUND', 'EXCHANGE_IN') THEN sm.quantity ELSE 0 END), 0) - " +
+           "COALESCE(SUM(CASE WHEN sm.type IN ('OUTBOUND', 'RETURN_INBOUND', 'EXCHANGE_OUT') THEN sm.quantity ELSE 0 END), 0) as stock " +
+           "FROM StockMovement sm " +
+           "WHERE sm.deletedAt IS NULL " +
+           "GROUP BY sm.item.id")
+    List<ItemStockProjection> calculateAllCurrentStock();
+
+    interface ItemStockProjection {
+        UUID getItemId();
+        int getStock();
+    }
+
     interface MovementSummary {
         int getInboundQty();
         int getOutboundQty();

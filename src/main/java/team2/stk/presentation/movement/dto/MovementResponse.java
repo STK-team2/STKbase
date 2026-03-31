@@ -2,6 +2,7 @@ package team2.stk.presentation.movement.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import team2.stk.application.movement.GetMovementsUseCase;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
 
@@ -39,6 +40,23 @@ public class MovementResponse {
                 movement.getNote(),
                 movement.getUser().getName(),
                 movement.getCreatedAt()
+        );
+    }
+
+    public static MovementResponse from(GetMovementsUseCase.MovementResult result) {
+        return new MovementResponse(
+                result.movementId(),
+                result.itemId(),
+                result.itemCode(),
+                result.itemName(),
+                result.site(),
+                result.type(),
+                result.quantity(),
+                result.movementDate(),
+                result.reference(),
+                result.note(),
+                result.userName(),
+                result.createdAt()
         );
     }
 }
