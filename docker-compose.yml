@@ -3,6 +3,15 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: stk-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - stk-network
+    restart: unless-stopped
+
   # PostgreSQL 데이터베이스
   postgres:
     image: postgres:16
@@ -31,6 +40,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/stk_db
       SPRING_DATASOURCE_USERNAME: stk_user
       SPRING_DATASOURCE_PASSWORD: stk_password
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
 
       # JPA 설정
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -55,6 +66,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
+      - redis
       - postgres
     networks:
       - stk-network
