@@ -3,6 +3,15 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: stk-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - stk-network
+    restart: unless-stopped
+
   # PostgreSQL 데이터베이스
   postgres:
     image: postgres:16
@@ -19,66 +28,6 @@ services:
     networks:
       - stk-network
     restart: unless-stopped
-
-  # 재고관리 애플리케이션
-  stk-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: stk-app
-    environment:
-      # 데이터베이스 설정
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/stk_db
-      SPRING_DATASOURCE_USERNAME: stk_user
-      SPRING_DATASOURCE_PASSWORD: stk_password
-
-      # JPA 설정
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: false
-
-      # 이메일 설정 (실제 운영시 변경 필요)
-      SPRING_MAIL_HOST: smtp.gmail.com
-      SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:-your-email@gmail.com}
-      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:-your-app-password}
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
-
-      # JWT 설정
-      JWT_SECRET: ${JWT_SECRET:-your-very-long-jwt-secret-key-for-development-minimum-256-bits}
-
-      # 로깅
-      LOGGING_LEVEL_TEAM2_STK: INFO
-
-      # 시간대
-      TZ: Asia/Seoul
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - stk-network
-    restart: unless-stopped
-    volumes:
-      - app_logs:/app/logs
-
-  # 개발용 pgAdmin (선택사항)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: stk-pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@stk.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-      TZ: Asia/Seoul
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
-    networks:
-      - stk-network
-    restart: unless-stopped
-    profiles:
-      - dev # docker-compose --profile dev up 으로 실행시에만 시작
 
 volumes:
   postgres_data:
