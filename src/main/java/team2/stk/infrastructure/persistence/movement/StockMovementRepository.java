@@ -44,6 +44,10 @@ public class StockMovementRepository {
         return stockMovementJpaRepository.getMovementSummary(itemId, startDate, endDate);
     }
 
+    public List<StockMovementJpaRepository.ItemStockProjection> calculateAllCurrentStock() {
+        return stockMovementJpaRepository.calculateAllCurrentStock();
+    }
+
     public StockMovement save(StockMovement stockMovement) {
         return stockMovementJpaRepository.save(stockMovement);
     }
