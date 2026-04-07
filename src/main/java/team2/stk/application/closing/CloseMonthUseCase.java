@@ -52,14 +52,20 @@ public class CloseMonthUseCase {
     }
 
     private void validateClosingOrder(String closingYm) {
-        // 간단한 검증 로직: 현재 월 이전에 마감되지 않은 월이 있는지 확인
-        // 실제로는 더 정교한 로직이 필요할 수 있음
         String previousYm = getPreviousMonth(closingYm);
-        if (previousYm != null) {
-            long unclosedCount = closingRepository.countUnclosedItems(previousYm);
-            if (unclosedCount > 0) {
-                throw new ClosingOrderViolatedException(closingYm);
-            }
+        if (previousYm == null) {
+            return;
+        }
+
+        // 이전 월에 마감 이력이 하나도 없으면 최초 마감으로 간주하여 통과
+        boolean previousClosingExists = closingRepository.existsByClosingYm(previousYm);
+        if (!previousClosingExists) {
+            return;
+        }
+
+        long unclosedCount = closingRepository.countUnclosedItems(previousYm);
+        if (unclosedCount > 0) {
+            throw new ClosingOrderViolatedException(closingYm);
         }
     }
 

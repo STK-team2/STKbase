@@ -43,6 +43,10 @@ public class ClosingRepository {
         return closingJpaRepository.countUnclosedItems(closingYm);
     }
 
+    public boolean existsByClosingYm(String closingYm) {
+        return closingJpaRepository.existsByClosingYm(closingYm);
+    }
+
     public Closing save(Closing closing) {
         return closingJpaRepository.save(closing);
     }

@@ -44,6 +44,9 @@ public interface ClosingJpaRepository extends JpaRepository<Closing, UUID> {
            "AND c.status = 'CLOSED'")
     boolean hasUnclosedPreviousMonth(@Param("itemId") UUID itemId, @Param("currentYm") String currentYm);
 
+    @Query("SELECT COUNT(c) > 0 FROM Closing c WHERE c.closingYm = :closingYm")
+    boolean existsByClosingYm(@Param("closingYm") String closingYm);
+
     // 전체 아이템 중 특정 월에 마감되지 않은 아이템이 있는지 확인
     @Query("SELECT COUNT(DISTINCT i.id) FROM Item i " +
            "WHERE i.deletedAt IS NULL " +
