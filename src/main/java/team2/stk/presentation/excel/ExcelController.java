@@ -47,34 +47,16 @@ public class ExcelController {
     )
     @PostMapping("/import")
     public ResponseEntity<ApiResponse<ImportExcelResponse>> importExcel(
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file) throws java.io.IOException {
 
-        try {
-            log.info("엑셀 파일 업로드 요청: {}", file.getOriginalFilename());
+        log.info("엑셀 파일 업로드 요청: {}", file.getOriginalFilename());
 
-            ImportExcelUseCase.ImportResult result = importExcelUseCase.execute(file);
-            ImportExcelResponse response = ImportExcelResponse.from(result);
+        ImportExcelUseCase.ImportResult result = importExcelUseCase.execute(file);
+        ImportExcelResponse response = ImportExcelResponse.from(result);
 
-            if (response.isSuccess()) {
-                log.info("엑셀 업로드 성공: 자재 {}개, 입출고 {}개 처리완료",
-                        response.getProcessedItemCount(), response.getProcessedMovementCount());
-                return ResponseEntity.ok(ApiResponse.success(response));
-            } else {
-                log.warn("엑셀 업로드 실패: {}개 오류 발생", response.getErrors().size());
-                return ResponseEntity.badRequest().body(
-                    ApiResponse.failure("EXCEL_IMPORT_ERROR", "엑셀 파일 처리 중 오류가 발생했습니다.")
-                );
-            }
+        log.info("엑셀 업로드 완료: 자재 {}개, 입출고 {}개 처리",
+                response.getProcessedItemCount(), response.getProcessedMovementCount());
 
-        } catch (IllegalArgumentException e) {
-            log.warn("잘못된 업로드 요청: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.failure("EXCEL_INVALID_FILE", e.getMessage()));
-
-        } catch (Exception e) {
-            log.error("엑셀 업로드 중 예상치 못한 오류 발생", e);
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.failure("EXCEL_UPLOAD_ERROR", "파일 업로드 중 오류가 발생했습니다."));
-        }
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
