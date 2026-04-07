@@ -26,22 +26,31 @@ public class GetClosingStockUseCase {
         }
 
         return closings.stream()
-                .map(closing -> new ClosingStockResult(
-                        closing.getId(),
-                        closing.getItem().getId(),
-                        closing.getItemCode(),
-                        closing.getItemName(),
-                        closing.getItem().getBoxNumber(),
-                        closing.getItem().getLocation(),
-                        closing.getClosingYm(),
-                        closing.getStatus(),
-                        closing.getOpeningStock(),
-                        closing.getInboundQty(),
-                        closing.getOutboundQty(),
-                        closing.getClosingStock(),
-                        closing.getUser().getName(),
-                        closing.getClosedAt()
-                ))
+                .map(closing -> {
+                    // soft delete된 자재는 스냅샷 데이터만 사용
+                    String boxNumber = null;
+                    String location = null;
+                    if (closing.getItem() != null && !closing.getItem().isDeleted()) {
+                        boxNumber = closing.getItem().getBoxNumber();
+                        location = closing.getItem().getLocation();
+                    }
+                    return new ClosingStockResult(
+                            closing.getId(),
+                            closing.getItem() != null ? closing.getItem().getId() : null,
+                            closing.getItemCode(),
+                            closing.getItemName(),
+                            boxNumber,
+                            location,
+                            closing.getClosingYm(),
+                            closing.getStatus(),
+                            closing.getOpeningStock(),
+                            closing.getInboundQty(),
+                            closing.getOutboundQty(),
+                            closing.getClosingStock(),
+                            closing.getUser().getName(),
+                            closing.getClosedAt()
+                    );
+                })
                 .toList();
     }
 
