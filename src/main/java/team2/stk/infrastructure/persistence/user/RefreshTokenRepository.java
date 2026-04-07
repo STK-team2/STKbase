@@ -21,6 +21,10 @@ public class RefreshTokenRepository {
         return refreshTokenJpaRepository.save(refreshToken);
     }
 
+    public void delete(RefreshToken refreshToken) {
+        refreshTokenJpaRepository.delete(refreshToken);
+    }
+
     public void deleteByUser(User user) {
         refreshTokenJpaRepository.deleteByUser(user);
     }

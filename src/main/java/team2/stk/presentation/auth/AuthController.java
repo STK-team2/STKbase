@@ -52,11 +52,11 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @Operation(summary = "토큰 갱신", description = "Refresh Token으로 새로운 Access Token을 발급받습니다.")
+    @Operation(summary = "토큰 갱신", description = "Refresh Token으로 새로운 Access Token과 Refresh Token을 발급받습니다.")
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshTokenResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
-        String accessToken = refreshTokenUseCase.execute(request.getRefreshToken());
-        RefreshTokenResponse response = new RefreshTokenResponse(accessToken);
+        RefreshTokenUseCase.RefreshResult result = refreshTokenUseCase.execute(request.getRefreshToken());
+        RefreshTokenResponse response = new RefreshTokenResponse(result.accessToken(), result.refreshToken());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
