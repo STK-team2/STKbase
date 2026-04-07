@@ -9,12 +9,11 @@ import team2.stk.domain.user.User;
 import team2.stk.domain.user.exception.EmailAlreadyExistsException;
 import team2.stk.domain.user.exception.EmailNotVerifiedException;
 import team2.stk.infrastructure.persistence.user.UserRepository;
+import team2.stk.shared.util.RedisKeyConstants;
 
 @Service
 @RequiredArgsConstructor
 public class SignUpUseCase {
-
-    private static final String VERIFIED_KEY_PREFIX = "auth:email:verified:";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -26,7 +25,7 @@ public class SignUpUseCase {
             throw new EmailAlreadyExistsException(email);
         }
 
-        String verifiedKey = VERIFIED_KEY_PREFIX + email;
+        String verifiedKey = RedisKeyConstants.EMAIL_VERIFIED_PREFIX + email;
         String verifiedValue = stringRedisTemplate.opsForValue().get(verifiedKey);
         if (!"true".equals(verifiedValue)) {
             throw new EmailNotVerifiedException();

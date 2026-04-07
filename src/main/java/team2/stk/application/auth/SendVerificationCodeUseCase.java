@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team2.stk.domain.user.exception.EmailAlreadyExistsException;
 import team2.stk.infrastructure.mail.EmailService;
 import team2.stk.infrastructure.persistence.user.UserRepository;
+import team2.stk.shared.util.RedisKeyConstants;
 
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -15,7 +16,6 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class SendVerificationCodeUseCase {
 
-    private static final String CODE_KEY_PREFIX = "auth:email:code:";
     private static final Duration CODE_TTL = Duration.ofMinutes(3);
 
     private final UserRepository userRepository;
@@ -29,7 +29,7 @@ public class SendVerificationCodeUseCase {
         }
 
         String verificationCode = generateVerificationCode();
-        String key = CODE_KEY_PREFIX + email;
+        String key = RedisKeyConstants.EMAIL_CODE_PREFIX + email;
         stringRedisTemplate.opsForValue().set(key, verificationCode, CODE_TTL);
         emailService.sendVerificationEmail(email, verificationCode);
     }
