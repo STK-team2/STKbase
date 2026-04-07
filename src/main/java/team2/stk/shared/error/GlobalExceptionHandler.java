@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMovementNotFound(team2.stk.domain.movement.exception.MovementNotFoundException e) {
         log.warn("Movement not found: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.failure("MOVEMENT_001", e.getMessage()));
+                .body(ApiResponse.failure(ErrorCode.MOVEMENT_NOT_FOUND));
     }
 
     @ExceptionHandler(team2.stk.domain.movement.exception.InsufficientStockException.class)

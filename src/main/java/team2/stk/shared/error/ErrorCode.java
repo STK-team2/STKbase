@@ -19,7 +19,8 @@ public enum ErrorCode {
     DUPLICATE_ITEM_CODE("ITEM_002", "이미 존재하는 자재코드입니다."),
 
     // Movement
-    INSUFFICIENT_STOCK("MOVEMENT_001", "재고가 부족합니다."),
+    MOVEMENT_NOT_FOUND("MOVEMENT_001", "입출고 내역을 찾을 수 없습니다."),
+    INSUFFICIENT_STOCK("MOVEMENT_002", "재고가 부족합니다."),
 
     // Closing
     CLOSING_ORDER_VIOLATED("CLOSING_001", "이전 월 마감이 완료되지 않았습니다."),
