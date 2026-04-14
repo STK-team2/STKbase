@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
 
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -93,5 +95,62 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovement,
     interface MovementSummary {
         int getInboundQty();
         int getOutboundQty();
+    }
+
+    // 오늘 입고 건수
+    @Query("SELECT COUNT(sm) FROM StockMovement sm " +
+           "WHERE sm.type IN ('INBOUND', 'RETURN_OUTBOUND', 'EXCHANGE_IN') " +
+           "AND sm.movementDate = :date AND sm.deletedAt IS NULL")
+    long countTodayInbound(@Param("date") LocalDate date);
+
+    // 오늘 출고 건수
+    @Query("SELECT COUNT(sm) FROM StockMovement sm " +
+           "WHERE sm.type IN ('OUTBOUND', 'RETURN_INBOUND', 'EXCHANGE_OUT') " +
+           "AND sm.movementDate = :date AND sm.deletedAt IS NULL")
+    long countTodayOutbound(@Param("date") LocalDate date);
+
+    // 일별 입고/출고 건수 (주간 현황용)
+    @Query("SELECT sm.movementDate as date, " +
+           "SUM(CASE WHEN sm.type IN ('INBOUND', 'RETURN_OUTBOUND', 'EXCHANGE_IN') THEN 1 ELSE 0 END) as inboundCount, " +
+           "SUM(CASE WHEN sm.type IN ('OUTBOUND', 'RETURN_INBOUND', 'EXCHANGE_OUT') THEN 1 ELSE 0 END) as outboundCount " +
+           "FROM StockMovement sm " +
+           "WHERE sm.movementDate BETWEEN :startDate AND :endDate AND sm.deletedAt IS NULL " +
+           "GROUP BY sm.movementDate " +
+           "ORDER BY sm.movementDate")
+    List<DailyMovementCount> countDailyMovements(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    interface DailyMovementCount {
+        LocalDate getDate();
+        long getInboundCount();
+        long getOutboundCount();
+    }
+
+    // 최근 입출고 N건
+    @Query("SELECT sm FROM StockMovement sm " +
+           "JOIN FETCH sm.item i " +
+           "WHERE sm.deletedAt IS NULL " +
+           "ORDER BY sm.createdAt DESC")
+    List<StockMovement> findRecentMovements(Pageable pageable);
+
+    // 월별 입고/출고 합계 (월별 추이용)
+    @Query("SELECT FUNCTION('TO_CHAR', sm.movementDate, 'YYYY-MM') as month, " +
+           "COALESCE(SUM(CASE WHEN sm.type IN ('INBOUND', 'RETURN_OUTBOUND', 'EXCHANGE_IN') THEN sm.quantity ELSE 0 END), 0) as inboundTotal, " +
+           "COALESCE(SUM(CASE WHEN sm.type IN ('OUTBOUND', 'RETURN_INBOUND', 'EXCHANGE_OUT') THEN sm.quantity ELSE 0 END), 0) as outboundTotal " +
+           "FROM StockMovement sm " +
+           "WHERE sm.movementDate BETWEEN :startDate AND :endDate AND sm.deletedAt IS NULL " +
+           "GROUP BY FUNCTION('TO_CHAR', sm.movementDate, 'YYYY-MM') " +
+           "ORDER BY FUNCTION('TO_CHAR', sm.movementDate, 'YYYY-MM')")
+    List<MonthlyMovementTotal> getMonthlyTrend(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    interface MonthlyMovementTotal {
+        String getMonth();
+        long getInboundTotal();
+        long getOutboundTotal();
     }
 }

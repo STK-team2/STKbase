@@ -1,0 +1,70 @@
+package team2.stk.presentation.dashboard;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import team2.stk.application.dashboard.*;
+import team2.stk.presentation.dashboard.dto.*;
+import team2.stk.shared.response.ApiResponse;
+
+import java.util.List;
+
+@Tag(name = "대시보드", description = "대시보드 API")
+@RestController
+@RequestMapping("/dashboard")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+public class DashboardController {
+
+    private final GetDashboardSummaryUseCase getDashboardSummaryUseCase;
+    private final GetClosingStatusUseCase getClosingStatusUseCase;
+    private final GetWeeklyMovementsUseCase getWeeklyMovementsUseCase;
+    private final GetRecentMovementsUseCase getRecentMovementsUseCase;
+    private final GetMonthlyTrendUseCase getMonthlyTrendUseCase;
+
+    @Operation(summary = "대시보드 요약", description = "오늘 입고/출고 건수, 전체 품목 수를 조회합니다.")
+    @GetMapping("/summary")
+    public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getSummary() {
+        DashboardSummaryResponse response = DashboardSummaryResponse.from(getDashboardSummaryUseCase.execute());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "이번 달 마감 현황", description = "이번 달 마감 여부, 마감/미마감 건수, 전체 마감 건수를 조회합니다.")
+    @GetMapping("/closing-status")
+    public ResponseEntity<ApiResponse<ClosingStatusResponse>> getClosingStatus() {
+        ClosingStatusResponse response = ClosingStatusResponse.from(getClosingStatusUseCase.execute());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(summary = "주간 입출고 현황", description = "이번 주 월~금 일별 입고/출고 건수를 조회합니다.")
+    @GetMapping("/weekly-movements")
+    public ResponseEntity<ApiResponse<List<WeeklyMovementResponse>>> getWeeklyMovements() {
+        List<WeeklyMovementResponse> responses = getWeeklyMovementsUseCase.execute().stream()
+                .map(WeeklyMovementResponse::from)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @Operation(summary = "최근 입출고", description = "최근 입출고 내역을 조회합니다.")
+    @GetMapping("/recent-movements")
+    public ResponseEntity<ApiResponse<List<RecentMovementResponse>>> getRecentMovements() {
+        List<RecentMovementResponse> responses = getRecentMovementsUseCase.execute().stream()
+                .map(RecentMovementResponse::from)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @Operation(summary = "월별 재고 추이", description = "최근 12개월 월별 입고/출고 합계를 조회합니다.")
+    @GetMapping("/monthly-trend")
+    public ResponseEntity<ApiResponse<List<MonthlyTrendResponse>>> getMonthlyTrend() {
+        List<MonthlyTrendResponse> responses = getMonthlyTrendUseCase.execute().stream()
+                .map(MonthlyTrendResponse::from)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+}

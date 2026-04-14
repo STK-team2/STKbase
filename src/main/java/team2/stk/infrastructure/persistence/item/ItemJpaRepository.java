@@ -27,4 +27,7 @@ public interface ItemJpaRepository extends JpaRepository<Item, UUID> {
            "(LOWER(i.itemCode) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            " LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Item> searchActive(@Param("query") String query);
+
+    @Query("SELECT COUNT(i) FROM Item i WHERE i.deletedAt IS NULL")
+    long countActive();
 }

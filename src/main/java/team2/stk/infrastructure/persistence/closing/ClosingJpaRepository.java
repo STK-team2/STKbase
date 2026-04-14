@@ -47,6 +47,14 @@ public interface ClosingJpaRepository extends JpaRepository<Closing, UUID> {
     @Query("SELECT COUNT(c) > 0 FROM Closing c WHERE c.closingYm = :closingYm")
     boolean existsByClosingYm(@Param("closingYm") String closingYm);
 
+    // 특정 월 마감된 건수
+    @Query("SELECT COUNT(c) FROM Closing c WHERE c.closingYm = :closingYm AND c.status = 'CLOSED'")
+    long countClosedByClosingYm(@Param("closingYm") String closingYm);
+
+    // 전체 마감 건수 (모든 월)
+    @Query("SELECT COUNT(c) FROM Closing c WHERE c.status = 'CLOSED'")
+    long countAllClosed();
+
     // 전체 아이템 중 특정 월에 마감되지 않은 아이템이 있는지 확인
     @Query("SELECT COUNT(DISTINCT i.id) FROM Item i " +
            "WHERE i.deletedAt IS NULL " +

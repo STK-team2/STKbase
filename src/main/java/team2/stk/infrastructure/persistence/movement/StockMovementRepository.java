@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
 
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +48,26 @@ public class StockMovementRepository {
 
     public List<StockMovementJpaRepository.ItemStockProjection> calculateAllCurrentStock() {
         return stockMovementJpaRepository.calculateAllCurrentStock();
+    }
+
+    public long countTodayInbound(LocalDate date) {
+        return stockMovementJpaRepository.countTodayInbound(date);
+    }
+
+    public long countTodayOutbound(LocalDate date) {
+        return stockMovementJpaRepository.countTodayOutbound(date);
+    }
+
+    public List<StockMovementJpaRepository.DailyMovementCount> countDailyMovements(LocalDate startDate, LocalDate endDate) {
+        return stockMovementJpaRepository.countDailyMovements(startDate, endDate);
+    }
+
+    public List<StockMovement> findRecentMovements(Pageable pageable) {
+        return stockMovementJpaRepository.findRecentMovements(pageable);
+    }
+
+    public List<StockMovementJpaRepository.MonthlyMovementTotal> getMonthlyTrend(LocalDate startDate, LocalDate endDate) {
+        return stockMovementJpaRepository.getMonthlyTrend(startDate, endDate);
     }
 
     public StockMovement save(StockMovement stockMovement) {

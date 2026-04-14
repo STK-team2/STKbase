@@ -34,6 +34,10 @@ public class ItemRepository {
         return itemJpaRepository.searchActive(query);
     }
 
+    public long countActive() {
+        return itemJpaRepository.countActive();
+    }
+
     public Item save(Item item) {
         return itemJpaRepository.save(item);
     }

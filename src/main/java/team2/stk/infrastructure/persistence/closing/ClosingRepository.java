@@ -47,6 +47,14 @@ public class ClosingRepository {
         return closingJpaRepository.existsByClosingYm(closingYm);
     }
 
+    public long countClosedByClosingYm(String closingYm) {
+        return closingJpaRepository.countClosedByClosingYm(closingYm);
+    }
+
+    public long countAllClosed() {
+        return closingJpaRepository.countAllClosed();
+    }
+
     public Closing save(Closing closing) {
         return closingJpaRepository.save(closing);
     }
