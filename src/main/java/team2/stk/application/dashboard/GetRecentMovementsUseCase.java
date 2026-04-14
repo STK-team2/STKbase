@@ -1,7 +1,6 @@
 package team2.stk.application.dashboard;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
@@ -15,12 +14,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GetRecentMovementsUseCase {
 
-    private static final int DEFAULT_LIMIT = 5;
-
     private final StockMovementRepository stockMovementRepository;
 
-    public List<RecentMovementResult> execute() {
-        List<StockMovement> movements = stockMovementRepository.findRecentMovements(PageRequest.of(0, DEFAULT_LIMIT));
+    public List<RecentMovementResult> execute(int limit) {
+        List<StockMovement> movements = stockMovementRepository.findRecentMovements(limit);
 
         return movements.stream()
                 .map(sm -> new RecentMovementResult(

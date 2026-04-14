@@ -6,8 +6,6 @@ import org.springframework.data.repository.query.Param;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
 
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -132,8 +130,9 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovement,
     @Query("SELECT sm FROM StockMovement sm " +
            "JOIN FETCH sm.item i " +
            "WHERE sm.deletedAt IS NULL " +
-           "ORDER BY sm.createdAt DESC")
-    List<StockMovement> findRecentMovements(Pageable pageable);
+           "ORDER BY sm.createdAt DESC " +
+           "LIMIT :limit")
+    List<StockMovement> findRecentMovements(@Param("limit") int limit);
 
     // 월별 입고/출고 합계 (월별 추이용)
     @Query("SELECT FUNCTION('TO_CHAR', sm.movementDate, 'YYYY-MM') as month, " +

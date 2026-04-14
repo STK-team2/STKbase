@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team2.stk.application.dashboard.*;
 import team2.stk.presentation.dashboard.dto.*;
@@ -50,10 +51,11 @@ public class DashboardController {
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
 
-    @Operation(summary = "최근 입출고", description = "최근 입출고 내역을 조회합니다.")
+    @Operation(summary = "최근 입출고", description = "최근 입출고 내역을 조회합니다. limit 파라미터로 조회 건수를 지정할 수 있습니다.")
     @GetMapping("/recent-movements")
-    public ResponseEntity<ApiResponse<List<RecentMovementResponse>>> getRecentMovements() {
-        List<RecentMovementResponse> responses = getRecentMovementsUseCase.execute().stream()
+    public ResponseEntity<ApiResponse<List<RecentMovementResponse>>> getRecentMovements(
+            @RequestParam(defaultValue = "5") int limit) {
+        List<RecentMovementResponse> responses = getRecentMovementsUseCase.execute(limit).stream()
                 .map(RecentMovementResponse::from)
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(responses));
