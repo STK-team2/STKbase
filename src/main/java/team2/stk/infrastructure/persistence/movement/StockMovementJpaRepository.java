@@ -152,4 +152,23 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovement,
         long getInboundTotal();
         long getOutboundTotal();
     }
+
+    // 일별 입고/출고 수량 합계 (일별 추이용)
+    @Query("SELECT sm.movementDate as date, " +
+           "COALESCE(SUM(CASE WHEN sm.type IN ('INBOUND', 'RETURN_OUTBOUND', 'EXCHANGE_IN') THEN sm.quantity ELSE 0 END), 0) as inboundTotal, " +
+           "COALESCE(SUM(CASE WHEN sm.type IN ('OUTBOUND', 'RETURN_INBOUND', 'EXCHANGE_OUT') THEN sm.quantity ELSE 0 END), 0) as outboundTotal " +
+           "FROM StockMovement sm " +
+           "WHERE sm.movementDate BETWEEN :startDate AND :endDate AND sm.deletedAt IS NULL " +
+           "GROUP BY sm.movementDate " +
+           "ORDER BY sm.movementDate")
+    List<DailyMovementTotal> getDailyTrend(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    interface DailyMovementTotal {
+        LocalDate getDate();
+        long getInboundTotal();
+        long getOutboundTotal();
+    }
 }

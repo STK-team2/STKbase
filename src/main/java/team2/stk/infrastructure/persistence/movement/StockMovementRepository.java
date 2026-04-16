@@ -68,6 +68,10 @@ public class StockMovementRepository {
         return stockMovementJpaRepository.getMonthlyTrend(startDate, endDate);
     }
 
+    public List<StockMovementJpaRepository.DailyMovementTotal> getDailyTrend(LocalDate startDate, LocalDate endDate) {
+        return stockMovementJpaRepository.getDailyTrend(startDate, endDate);
+    }
+
     public StockMovement save(StockMovement stockMovement) {
         return stockMovementJpaRepository.save(stockMovement);
     }

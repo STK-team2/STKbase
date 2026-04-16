@@ -13,6 +13,9 @@ import team2.stk.application.dashboard.*;
 import team2.stk.presentation.dashboard.dto.*;
 import team2.stk.shared.response.ApiResponse;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "대시보드", description = "대시보드 API")
@@ -27,6 +30,7 @@ public class DashboardController {
     private final GetWeeklyMovementsUseCase getWeeklyMovementsUseCase;
     private final GetRecentMovementsUseCase getRecentMovementsUseCase;
     private final GetMonthlyTrendUseCase getMonthlyTrendUseCase;
+    private final GetDailyTrendUseCase getDailyTrendUseCase;
 
     @Operation(summary = "대시보드 요약", description = "오늘 입고/출고 건수, 전체 품목 수를 조회합니다.")
     @GetMapping("/summary")
@@ -66,6 +70,17 @@ public class DashboardController {
     public ResponseEntity<ApiResponse<List<MonthlyTrendResponse>>> getMonthlyTrend() {
         List<MonthlyTrendResponse> responses = getMonthlyTrendUseCase.execute().stream()
                 .map(MonthlyTrendResponse::from)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @Operation(summary = "일별 재고 추이", description = "기간별 일별 입고/출고 수량 합계를 조회합니다. 기간 미지정 시 최근 30일입니다.")
+    @GetMapping("/daily-trend")
+    public ResponseEntity<ApiResponse<List<DailyTrendResponse>>> getDailyTrend(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        List<DailyTrendResponse> responses = getDailyTrendUseCase.execute(from, to).stream()
+                .map(DailyTrendResponse::from)
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
