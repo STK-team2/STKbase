@@ -16,7 +16,7 @@ public class EmailService {
     public void sendVerificationEmail(String to, String code) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("s.nananu049@gmail.com");
+            message.setFrom("24.062@bssm.hs.kr");
             message.setTo(to);
             message.setSubject("재고관리 시스템 이메일 인증");
             message.setText("인증 코드: " + code + "\n\n이 코드는 3분 후에 만료됩니다.");
