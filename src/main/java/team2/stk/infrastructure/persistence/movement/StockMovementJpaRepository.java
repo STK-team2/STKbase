@@ -1,6 +1,8 @@
 package team2.stk.infrastructure.persistence.movement;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team2.stk.domain.movement.MovementType;
@@ -11,7 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StockMovementJpaRepository extends JpaRepository<StockMovement, UUID> {
+public interface StockMovementJpaRepository extends JpaRepository<StockMovement, UUID>, JpaSpecificationExecutor<StockMovement> {
+
+    @Override
+    @EntityGraph(attributePaths = "item")
+    List<StockMovement> findAll(org.springframework.data.jpa.domain.Specification<StockMovement> spec, org.springframework.data.domain.Sort sort);
 
     @Query("SELECT sm FROM StockMovement sm WHERE sm.id = :id AND sm.deletedAt IS NULL")
     Optional<StockMovement> findByIdActive(@Param("id") UUID id);
@@ -34,23 +40,6 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovement,
             @Param("itemId") UUID itemId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
-    );
-
-    @Query("SELECT sm FROM StockMovement sm " +
-           "JOIN FETCH sm.item i " +
-           "WHERE sm.deletedAt IS NULL " +
-           "AND (:type IS NULL OR sm.type = :type) " +
-           "AND (:startDate IS NULL OR sm.movementDate >= :startDate) " +
-           "AND (:endDate IS NULL OR sm.movementDate <= :endDate) " +
-           "AND (:query IS NULL OR :query = '' OR " +
-           "     LOWER(i.itemCode) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "     LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-           "ORDER BY sm.movementDate DESC, sm.createdAt DESC")
-    List<StockMovement> searchMovements(
-            @Param("type") MovementType type,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("query") String query
     );
 
     // 현재 재고 계산을 위한 집계 쿼리
