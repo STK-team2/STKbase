@@ -30,10 +30,11 @@ public class DownloadMovementExcelUseCase {
         String fileName = generateFileName(typeKorean, startDate, endDate);
 
         List<String> headers = Arrays.asList(
-                "자재코드", "자재명", "구분", "수량", "날짜", "참고", "비고", "등록자", "등록일시"
+                "사업장", "자재코드", "자재명", "구분", "수량", "날짜", "참고", "비고", "등록자", "등록일시"
         );
 
         List<Function<StockMovement, Object>> columns = Arrays.asList(
+                StockMovement::getSite,
                 movement -> movement.getItem().getItemCode(),
                 movement -> movement.getItem().getItemName(),
                 movement -> movement.getType() == MovementType.INBOUND ? "입고" : "출고",
