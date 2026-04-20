@@ -1,7 +1,6 @@
 package team2.stk.infrastructure.persistence.movement;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,10 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface StockMovementJpaRepository extends JpaRepository<StockMovement, UUID>, JpaSpecificationExecutor<StockMovement> {
-
-    @Override
-    @EntityGraph(attributePaths = "item")
-    List<StockMovement> findAll(org.springframework.data.jpa.domain.Specification<StockMovement> spec, org.springframework.data.domain.Sort sort);
 
     @Query("SELECT sm FROM StockMovement sm WHERE sm.id = :id AND sm.deletedAt IS NULL")
     Optional<StockMovement> findByIdActive(@Param("id") UUID id);

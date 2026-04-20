@@ -1,6 +1,7 @@
 package team2.stk.infrastructure.persistence.movement;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.persistence.criteria.Fetch;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -39,10 +40,11 @@ public class StockMovementRepository {
         return stockMovementJpaRepository.findByItemIdAndDateRangeActive(itemId, startDate, endDate);
     }
 
+    @SuppressWarnings("unchecked")
     public List<StockMovement> searchMovements(MovementType type, LocalDate startDate, LocalDate endDate, String query) {
         Specification<StockMovement> specification = (root, criteriaQuery, criteriaBuilder) -> {
-            Join<StockMovement, Item> itemJoin = root.join("item", JoinType.INNER);
-            criteriaQuery.distinct(true);
+            Fetch<StockMovement, Item> itemFetch = root.fetch("item", JoinType.INNER);
+            Join<StockMovement, Item> itemJoin = (Join<StockMovement, Item>) itemFetch;
 
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.isNull(root.get("deletedAt")));
