@@ -1,11 +1,19 @@
 package team2.stk.infrastructure.persistence.movement;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import team2.stk.domain.item.Item;
 import team2.stk.domain.movement.MovementType;
 import team2.stk.domain.movement.StockMovement;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,8 +40,44 @@ public class StockMovementRepository {
         return stockMovementJpaRepository.findByItemIdAndDateRangeActive(itemId, startDate, endDate);
     }
 
+    @SuppressWarnings("unchecked")
     public List<StockMovement> searchMovements(MovementType type, LocalDate startDate, LocalDate endDate, String query) {
-        return stockMovementJpaRepository.searchMovements(type, startDate, endDate, query);
+        Specification<StockMovement> specification = (root, criteriaQuery, criteriaBuilder) -> {
+            Fetch<StockMovement, Item> itemFetch = root.fetch("item", JoinType.INNER);
+            Join<StockMovement, Item> itemJoin = (Join<StockMovement, Item>) itemFetch;
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.isNull(root.get("deletedAt")));
+
+            if (type != null) {
+                predicates.add(criteriaBuilder.equal(root.get("type"), type));
+            }
+
+            if (startDate != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("movementDate"), startDate));
+            }
+
+            if (endDate != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("movementDate"), endDate));
+            }
+
+            if (query != null && !query.isBlank()) {
+                String normalizedQuery = "%" + query.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(itemJoin.get("itemCode")), normalizedQuery),
+                        criteriaBuilder.like(criteriaBuilder.lower(itemJoin.get("itemName")), normalizedQuery)
+                ));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        };
+
+        Sort sort = Sort.by(
+                Sort.Order.desc("movementDate"),
+                Sort.Order.desc("createdAt")
+        );
+
+        return stockMovementJpaRepository.findAll(specification, sort);
     }
 
     public int calculateCurrentStock(UUID itemId) {
