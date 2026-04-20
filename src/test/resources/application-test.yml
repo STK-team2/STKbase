@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -33,6 +33,9 @@ spring:
   test:
     database:
       replace: none
+  security:
+    jwt:
+      secret: test-jwt-secret-for-repository-tests
 
 logging:
   level:
