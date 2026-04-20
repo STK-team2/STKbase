@@ -47,16 +47,9 @@ public class ExcelExporter {
             }
         }
 
-        // 컬럼 너비 자동 조정
+        // 컬럼 너비 고정 설정 (autoSizeColumn은 libfreetype 의존성 문제로 미사용)
         for (int i = 0; i < headers.size(); i++) {
-            sheet.autoSizeColumn(i);
-            // 최대/최소 너비 제한
-            int width = sheet.getColumnWidth(i);
-            if (width > 15000) {
-                sheet.setColumnWidth(i, 15000); // 최대 너비 제한
-            } else if (width < 3000) {
-                sheet.setColumnWidth(i, 3000);  // 최소 너비 보장
-            }
+            sheet.setColumnWidth(i, 5000);
         }
 
         try {
