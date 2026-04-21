@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team2.stk.shared.config.JsonbConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -36,12 +37,12 @@ public class ChangeHistory {
     @Column(nullable = false)
     private String action;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "before_value", columnDefinition = "jsonb")
-    @Convert(converter = JsonbConverter.class)
     private Map<String, Object> beforeValue;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "after_value", columnDefinition = "jsonb")
-    @Convert(converter = JsonbConverter.class)
     private Map<String, Object> afterValue;
 
     @Column(name = "changed_at", nullable = false)
