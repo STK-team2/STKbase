@@ -24,10 +24,12 @@ public class GetRecentMovementsUseCase {
                         sm.getId(),
                         sm.getItem().getItemCode(),
                         sm.getItem().getItemName(),
+                        sm.getItem().getLocation(),
                         sm.getType(),
                         sm.getQuantity(),
                         sm.getMovementDate(),
-                        sm.getSite()
+                        sm.getSite(),
+                        sm.getUser().getName()
                 ))
                 .toList();
     }
@@ -36,9 +38,11 @@ public class GetRecentMovementsUseCase {
             UUID movementId,
             String itemCode,
             String itemName,
+            String location,
             MovementType type,
             int quantity,
             LocalDate movementDate,
-            String site
+            String site,
+            String userName
     ) {}
 }
