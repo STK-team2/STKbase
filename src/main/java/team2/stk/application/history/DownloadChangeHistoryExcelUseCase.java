@@ -1,7 +1,5 @@
 package team2.stk.application.history;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -25,7 +23,7 @@ public class DownloadChangeHistoryExcelUseCase {
     private final ExcelExporter excelExporter;
 
     private static final List<String> HEADERS = List.of(
-            "변경일시", "사용자", "테이블명", "레코드ID", "액션", "변경 전", "변경 후"
+            "변경일시", "입출고 번호", "작업화면", "자재위치", "자재코드", "자재명", "변경수량", "변경자"
     );
 
     public ExcelResult execute(SearchCriteria criteria) {
@@ -41,12 +39,13 @@ public class DownloadChangeHistoryExcelUseCase {
 
         List<Function<ChangeHistory, Object>> columns = List.of(
                 history -> history.getChangedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                history -> history.getUser().getName(),
-                ChangeHistory::getTableName,
                 history -> history.getRecordId().toString(),
-                ChangeHistory::getAction,
-                history -> formatJsonValue(history.getBeforeValue()),
-                history -> formatJsonValue(history.getAfterValue())
+                ChangeHistory::getScreenName,
+                history -> extractField(history, "location"),
+                history -> extractField(history, "itemCode"),
+                history -> extractField(history, "itemName"),
+                history -> extractField(history, "quantity"),
+                history -> history.getUser().getName()
         );
 
         ByteArrayResource resource = excelExporter.export(HEADERS, histories, columns);
@@ -58,15 +57,14 @@ public class DownloadChangeHistoryExcelUseCase {
         return new ExcelResult(resource, filename);
     }
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    private String formatJsonValue(Map<String, Object> value) {
-        if (value == null) return "";
-        try {
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            return value.toString();
-        }
+    /** afterValue 우선으로 필드를 추출하고, 없으면 beforeValue에서 가져옴 */
+    private String extractField(ChangeHistory history, String key) {
+        Map<String, Object> source = history.getAfterValue() != null
+                ? history.getAfterValue()
+                : history.getBeforeValue();
+        if (source == null) return "";
+        Object val = source.get(key);
+        return val != null ? val.toString() : "";
     }
 
     private String generateFilename(SearchCriteria criteria) {

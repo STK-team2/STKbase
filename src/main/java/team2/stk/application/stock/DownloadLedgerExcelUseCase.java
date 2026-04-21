@@ -29,14 +29,13 @@ public class DownloadLedgerExcelUseCase {
         String fileName = String.format("수불_현황_%s_%s.xlsx", period, today);
 
         List<String> headers = Arrays.asList(
-                "자재코드", "자재명", "BOX번호", "위치", "기초재고", "입고수량", "출고수량", "기말재고"
+                "자재코드", "자재명", "자재위치", "기초재고", "입고수량", "출고수량", "기말재고"
         );
 
         List<Function<GetLedgerUseCase.LedgerResult, Object>> columns = Arrays.asList(
                 GetLedgerUseCase.LedgerResult::itemCode,
                 GetLedgerUseCase.LedgerResult::itemName,
-                result -> result.boxNumber() != null ? result.boxNumber() : "",
-                GetLedgerUseCase.LedgerResult::location,
+                result -> result.location() != null ? result.location() : "",
                 GetLedgerUseCase.LedgerResult::openingStock,
                 GetLedgerUseCase.LedgerResult::inboundQty,
                 GetLedgerUseCase.LedgerResult::outboundQty,

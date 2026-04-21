@@ -27,15 +27,14 @@ public class DownloadCurrentStockExcelUseCase {
         String fileName = String.format("재고_현황_%s.xlsx", today);
 
         List<String> headers = Arrays.asList(
-                "자재코드", "자재명", "BOX번호", "위치", "현재재고"
+                "자재코드", "자재명", "재고수량", "자재위치"
         );
 
         List<Function<GetCurrentStockUseCase.CurrentStockResult, Object>> columns = Arrays.asList(
                 GetCurrentStockUseCase.CurrentStockResult::itemCode,
                 GetCurrentStockUseCase.CurrentStockResult::itemName,
-                result -> result.boxNumber() != null ? result.boxNumber() : "",
-                GetCurrentStockUseCase.CurrentStockResult::location,
-                GetCurrentStockUseCase.CurrentStockResult::currentStock
+                GetCurrentStockUseCase.CurrentStockResult::currentStock,
+                result -> result.location() != null ? result.location() : ""
         );
 
         ByteArrayResource resource = excelExporter.export(headers, results, columns);
