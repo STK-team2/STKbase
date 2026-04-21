@@ -17,6 +17,7 @@ public class MovementResponse {
     private final UUID itemId;
     private final String itemCode;
     private final String itemName;
+    private final String location;
     private final String site;
     private final MovementType type;
     private final int quantity;
@@ -32,6 +33,7 @@ public class MovementResponse {
                 movement.getItem().getId(),
                 movement.getItem().getItemCode(),
                 movement.getItem().getItemName(),
+                movement.getItem().getLocation(),
                 movement.getSite(),
                 movement.getType(),
                 movement.getQuantity(),
@@ -49,6 +51,7 @@ public class MovementResponse {
                 result.itemId(),
                 result.itemCode(),
                 result.itemName(),
+                result.location(),
                 result.site(),
                 result.type(),
                 result.quantity(),
