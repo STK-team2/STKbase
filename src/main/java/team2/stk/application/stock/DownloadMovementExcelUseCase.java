@@ -29,22 +29,39 @@ public class DownloadMovementExcelUseCase {
         String typeKorean = getTypeKorean(type);
         String fileName = generateFileName(typeKorean, startDate, endDate);
 
-        List<String> headers = Arrays.asList(
-                "사업장", "자재코드", "자재명", "구분", "수량", "날짜", "참고", "비고", "등록자", "등록일시"
-        );
+        List<String> headers;
+        List<Function<StockMovement, Object>> columns;
 
-        List<Function<StockMovement, Object>> columns = Arrays.asList(
-                StockMovement::getSite,
-                movement -> movement.getItem().getItemCode(),
-                movement -> movement.getItem().getItemName(),
-                movement -> movement.getType() == MovementType.INBOUND ? "입고" : "출고",
-                StockMovement::getQuantity,
-                StockMovement::getMovementDate,
-                movement -> movement.getReference() != null ? movement.getReference() : "",
-                movement -> movement.getNote() != null ? movement.getNote() : "",
-                movement -> movement.getUser().getName(),
-                movement -> movement.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        );
+        if (type == MovementType.OUTBOUND) {
+            headers = Arrays.asList(
+                    "사업장", "출고 날짜", "자재코드", "자재명", "수량", "자재위치", "출고 담당자", "비고", "참고"
+            );
+            columns = Arrays.asList(
+                    StockMovement::getSite,
+                    StockMovement::getMovementDate,
+                    movement -> movement.getItem().getItemCode(),
+                    movement -> movement.getItem().getItemName(),
+                    StockMovement::getQuantity,
+                    movement -> movement.getItem().getLocation() != null ? movement.getItem().getLocation() : "-",
+                    movement -> movement.getUser().getName(),
+                    movement -> movement.getNote() != null ? movement.getNote() : "",
+                    movement -> movement.getReference() != null ? movement.getReference() : ""
+            );
+        } else {
+            headers = Arrays.asList(
+                    "사업장", "입고 날짜", "자재코드", "자재명", "수량", "자재위치", "비고", "참고"
+            );
+            columns = Arrays.asList(
+                    StockMovement::getSite,
+                    StockMovement::getMovementDate,
+                    movement -> movement.getItem().getItemCode(),
+                    movement -> movement.getItem().getItemName(),
+                    StockMovement::getQuantity,
+                    movement -> movement.getItem().getLocation() != null ? movement.getItem().getLocation() : "-",
+                    movement -> movement.getNote() != null ? movement.getNote() : "",
+                    movement -> movement.getReference() != null ? movement.getReference() : ""
+            );
+        }
 
         ByteArrayResource resource = excelExporter.export(headers, movements, columns);
         return new ExcelDownloadResult(fileName, resource);
