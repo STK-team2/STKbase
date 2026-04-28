@@ -28,6 +28,11 @@ public interface ItemJpaRepository extends JpaRepository<Item, UUID> {
            " LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Item> searchActive(@Param("query") String query);
 
+    @Query("SELECT i FROM Item i WHERE i.deletedAt IS NULL AND i.category.id = :categoryId AND " +
+           "(LOWER(i.itemCode) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           " LOWER(i.itemName) LIKE LOWER(CONCAT('%', :query, '%')))")
+    List<Item> searchActiveByCategory(@Param("categoryId") UUID categoryId, @Param("query") String query);
+
     @Query("SELECT COUNT(i) FROM Item i WHERE i.deletedAt IS NULL")
     long countActive();
 }

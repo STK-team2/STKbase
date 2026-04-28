@@ -34,6 +34,10 @@ public class ItemRepository {
         return itemJpaRepository.searchActive(query);
     }
 
+    public List<Item> searchActiveByCategory(UUID categoryId, String query) {
+        return itemJpaRepository.searchActiveByCategory(categoryId, query);
+    }
+
     public long countActive() {
         return itemJpaRepository.countActive();
     }

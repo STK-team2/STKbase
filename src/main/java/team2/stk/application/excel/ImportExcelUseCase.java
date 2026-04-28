@@ -131,7 +131,7 @@ public class ImportExcelUseCase {
                     continue;
                 }
 
-                Item newItem = new Item(itemCode, itemRow.itemName(), itemRow.boxNumber(), itemRow.location());
+                Item newItem = new Item(itemCode, itemRow.itemName(), itemRow.boxNumber(), itemRow.location(), null, null);
                 Item savedItem = itemRepository.save(newItem);
                 itemMap.put(itemCode, savedItem);
                 processedItemCodes.add(itemCode);

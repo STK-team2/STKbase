@@ -33,6 +33,16 @@ public class Item {
     @Column(nullable = false)
     private String location;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @Column(name = "low_stock_threshold")
+    private Integer lowStockThreshold;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -40,11 +50,33 @@ public class Item {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public Item(String itemCode, String itemName, String boxNumber, String location) {
+    public Item(String itemCode, String itemName, String boxNumber, String location,
+                Category category, Integer lowStockThreshold) {
         this.itemCode = itemCode;
         this.itemName = itemName;
         this.boxNumber = boxNumber;
         this.location = location;
+        this.category = category;
+        this.lowStockThreshold = lowStockThreshold;
+    }
+
+    public void update(String itemName, String boxNumber, String location, Category category) {
+        this.itemName = itemName;
+        this.boxNumber = boxNumber;
+        this.location = location;
+        this.category = category;
+    }
+
+    public void updateImage(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void updateLowStockThreshold(Integer threshold) {
+        this.lowStockThreshold = threshold;
+    }
+
+    public boolean isLowStock(int currentStock) {
+        return lowStockThreshold != null && currentStock <= lowStockThreshold;
     }
 
     public void delete() {

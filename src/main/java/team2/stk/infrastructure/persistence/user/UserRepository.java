@@ -13,6 +13,10 @@ public class UserRepository {
 
     private final UserJpaRepository userJpaRepository;
 
+    public java.util.List<User> findAll() {
+        return userJpaRepository.findAll();
+    }
+
     public Optional<User> findById(UUID id) {
         return userJpaRepository.findById(id);
     }

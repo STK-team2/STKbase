@@ -29,7 +29,7 @@ public class RegisterItemAndInboundUseCase {
         UUID currentUserId = SecurityUtil.getCurrentUserId();
 
         // 1. 새로운 자재 등록
-        Item item = registerItemUseCase.execute(itemCode, itemName, boxNumber, location);
+        Item item = registerItemUseCase.execute(itemCode, itemName, boxNumber, location, null, null);
 
         // 2. 입고 등록
         User user = userRepository.findById(currentUserId)

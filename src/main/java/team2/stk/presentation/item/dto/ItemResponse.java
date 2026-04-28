@@ -16,6 +16,9 @@ public class ItemResponse {
     private final String itemName;
     private final String boxNumber;
     private final String location;
+    private final String categoryName;
+    private final String imageUrl;
+    private final Integer lowStockThreshold;
     private final LocalDateTime createdAt;
 
     public static ItemResponse from(Item item) {
@@ -25,6 +28,9 @@ public class ItemResponse {
                 item.getItemName(),
                 item.getBoxNumber(),
                 item.getLocation(),
+                item.getCategory() != null ? item.getCategory().getName() : null,
+                item.getImageUrl(),
+                item.getLowStockThreshold(),
                 item.getCreatedAt()
         );
     }
@@ -36,6 +42,9 @@ public class ItemResponse {
                 result.itemName(),
                 result.boxNumber(),
                 result.location(),
+                result.categoryName(),
+                result.imageUrl(),
+                result.lowStockThreshold(),
                 result.createdAt()
         );
     }
