@@ -1,7 +1,6 @@
 package team2.stk.application.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,6 @@ import team2.stk.shared.util.RedisKeyConstants;
 @Service
 @RequiredArgsConstructor
 public class SignUpUseCase {
-
-    @Value("${app.admin-email:}")
-    private String adminEmail;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,11 +32,8 @@ public class SignUpUseCase {
             throw new EmailNotVerifiedException();
         }
 
-        Role role = (!adminEmail.isBlank() && adminEmail.equalsIgnoreCase(email))
-                ? Role.ADMIN : Role.EMPLOYEE;
-
         String passwordHash = passwordEncoder.encode(password);
-        User user = new User(email, name, passwordHash, role);
+        User user = new User(email, name, passwordHash, Role.EMPLOYEE);
         user.verify();
         userRepository.save(user);
         stringRedisTemplate.delete(verifiedKey);

@@ -40,7 +40,6 @@ spring:
       refresh-token-validity: 1209600000  # 14일
 
 app:
-  admin-email: ${ADMIN_EMAIL:}
   vapid:
     public-key: ${VAPID_PUBLIC_KEY:}
     private-key: ${VAPID_PRIVATE_KEY:}
