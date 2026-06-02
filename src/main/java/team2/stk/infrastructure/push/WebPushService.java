@@ -17,20 +17,39 @@ import java.util.Map;
 @Service
 public class WebPushService {
 
-    private final PushService pushService;
+    private PushService pushService;
+    private final boolean enabled;
     private final PushSubscriptionRepository subscriptionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public WebPushService(
-            @Value("${app.vapid.public-key}") String publicKey,
-            @Value("${app.vapid.private-key}") String privateKey,
-            @Value("${app.vapid.subject}") String subject,
-            PushSubscriptionRepository subscriptionRepository) throws Exception {
-        this.pushService = new PushService(publicKey, privateKey, subject);
+            @Value("${app.vapid.public-key:}") String publicKey,
+            @Value("${app.vapid.private-key:}") String privateKey,
+            @Value("${app.vapid.subject:}") String subject,
+            PushSubscriptionRepository subscriptionRepository) {
         this.subscriptionRepository = subscriptionRepository;
+
+        if (publicKey.isBlank() || privateKey.isBlank()) {
+            log.warn("VAPID 키가 설정되지 않아 Web Push 알림이 비활성화됩니다.");
+            this.enabled = false;
+            return;
+        }
+
+        boolean init = false;
+        try {
+            this.pushService = new PushService(publicKey, privateKey, subject);
+            init = true;
+        } catch (Exception e) {
+            log.warn("Web Push 초기화 실패 - 알림 비활성화: {}", e.getMessage());
+        }
+        this.enabled = init;
     }
 
     public void notifyAdmins(String title, String body) {
+        if (!enabled) {
+            log.debug("Web Push 비활성화 상태 - 알림 스킵: {}", title);
+            return;
+        }
         List<PushSubscription> admins = subscriptionRepository.findAllAdmins();
         for (PushSubscription sub : admins) {
             try {
