@@ -11,4 +11,10 @@ public interface CategoryJpaRepository extends JpaRepository<Category, UUID> {
 
     @Query("SELECT c FROM Category c WHERE c.deletedAt IS NULL ORDER BY c.name")
     List<Category> findAllActive();
+
+    @Query("SELECT c FROM Category c WHERE c.deletedAt IS NULL AND c.parent IS NULL ORDER BY c.name")
+    List<Category> findAllTopLevel();
+
+    @Query("SELECT c FROM Category c WHERE c.deletedAt IS NULL AND c.parent.id = :parentId ORDER BY c.name")
+    List<Category> findAllByParentId(UUID parentId);
 }

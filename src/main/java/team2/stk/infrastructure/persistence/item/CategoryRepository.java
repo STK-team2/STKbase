@@ -18,6 +18,14 @@ public class CategoryRepository {
         return categoryJpaRepository.findAllActive();
     }
 
+    public List<Category> findAllTopLevel() {
+        return categoryJpaRepository.findAllTopLevel();
+    }
+
+    public List<Category> findAllByParentId(UUID parentId) {
+        return categoryJpaRepository.findAllByParentId(parentId);
+    }
+
     public Optional<Category> findById(UUID id) {
         return categoryJpaRepository.findById(id);
     }
