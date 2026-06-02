@@ -50,12 +50,13 @@ public class HistoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<GetChangeHistoryUseCase.ChangeHistoryDto>>> getChangeHistory(
             @RequestParam(required = false) String tableName,
+            @RequestParam(required = false) String screenName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String query
     ) {
         GetChangeHistoryUseCase.SearchCriteria criteria = new GetChangeHistoryUseCase.SearchCriteria(
-                tableName, startDate, endDate, query
+                tableName, screenName, startDate, endDate, query
         );
 
         List<GetChangeHistoryUseCase.ChangeHistoryDto> histories = getChangeHistoryUseCase.execute(criteria);
@@ -80,12 +81,13 @@ public class HistoryController {
     @GetMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadChangeHistory(
             @RequestParam(required = false) String tableName,
+            @RequestParam(required = false) String screenName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String query
     ) {
         DownloadChangeHistoryExcelUseCase.SearchCriteria criteria =
-                new DownloadChangeHistoryExcelUseCase.SearchCriteria(tableName, startDate, endDate, query);
+                new DownloadChangeHistoryExcelUseCase.SearchCriteria(tableName, screenName, startDate, endDate, query);
 
         DownloadChangeHistoryExcelUseCase.ExcelResult result = downloadChangeHistoryExcelUseCase.execute(criteria);
 

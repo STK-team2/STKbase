@@ -32,6 +32,7 @@ public class DownloadChangeHistoryExcelUseCase {
 
         List<ChangeHistory> histories = changeHistoryRepository.searchChangeHistory(
                 criteria.tableName(),
+                criteria.screenName(),
                 criteria.startDate(),
                 criteria.endDate(),
                 criteria.query()
@@ -93,6 +94,7 @@ public class DownloadChangeHistoryExcelUseCase {
 
     public record SearchCriteria(
             String tableName,
+            String screenName,
             LocalDateTime startDate,
             LocalDateTime endDate,
             String query

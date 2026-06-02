@@ -25,14 +25,18 @@ public class ChangeHistoryRepository {
         return changeHistoryJpaRepository.save(changeHistory);
     }
 
-    public List<ChangeHistory> searchChangeHistory(String tableName, LocalDateTime startDate,
-                                                   LocalDateTime endDate, String query) {
+    public List<ChangeHistory> searchChangeHistory(String tableName, String screenName,
+                                                   LocalDateTime startDate, LocalDateTime endDate,
+                                                   String query) {
         Specification<ChangeHistory> spec = (root, cq, cb) -> {
             Join<ChangeHistory, User> user = root.join("user", JoinType.INNER);
             List<Predicate> predicates = new ArrayList<>();
 
             if (tableName != null && !tableName.isBlank()) {
                 predicates.add(cb.equal(root.get("tableName"), tableName));
+            }
+            if (screenName != null && !screenName.isBlank()) {
+                predicates.add(cb.equal(root.get("screenName"), screenName));
             }
             if (startDate != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("changedAt"), startDate));
