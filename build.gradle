@@ -41,6 +41,10 @@ dependencies {
     implementation 'org.apache.poi:poi:5.2.5'
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
+    // AWS S3
+    implementation platform('software.amazon.awssdk:bom:2.26.12')
+    implementation 'software.amazon.awssdk:s3'
+
     // Web Push (VAPID)
     implementation 'nl.martijndwars:web-push:5.1.1'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
