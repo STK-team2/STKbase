@@ -32,7 +32,7 @@ public class CloseMonthUseCase {
     private final UserRepository userRepository;
 
     @Transactional
-    public List<CloseResult> execute(String closingYm) {
+    public List<CloseResult> execute(String closingYm, UUID itemId) {
         UUID currentUserId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
@@ -40,9 +40,18 @@ public class CloseMonthUseCase {
         // 순서 검증: 이전 월이 모두 마감되었는지 확인
         validateClosingOrder(closingYm);
 
-        List<Item> items = itemRepository.findAllActive();
-        List<CloseResult> results = new ArrayList<>();
+        List<Item> items;
+        if (itemId != null) {
+            // 단건 마감
+            Item item = itemRepository.findByIdActive(itemId)
+                    .orElseThrow(() -> new IllegalArgumentException("자재를 찾을 수 없습니다: " + itemId));
+            items = List.of(item);
+        } else {
+            // 전체 마감
+            items = itemRepository.findAllActive();
+        }
 
+        List<CloseResult> results = new ArrayList<>();
         for (Item item : items) {
             CloseResult result = processItemClosing(item, user, closingYm);
             results.add(result);

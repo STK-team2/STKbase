@@ -33,7 +33,7 @@ public class ClosingController {
     @Operation(summary = "마감 처리", description = "지정된 월의 재고를 마감 처리합니다. 순서대로 마감해야 합니다.")
     @PostMapping
     public ResponseEntity<ApiResponse<List<CloseMonthResponse>>> closeMonth(@Valid @RequestBody CloseMonthRequest request) {
-        List<CloseMonthUseCase.CloseResult> results = closeMonthUseCase.execute(request.getClosingYm());
+        List<CloseMonthUseCase.CloseResult> results = closeMonthUseCase.execute(request.getClosingYm(), request.getItemId());
         List<CloseMonthResponse> responses = results.stream()
                 .map(CloseMonthResponse::from)
                 .toList();
